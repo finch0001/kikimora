@@ -1,5 +1,9 @@
 *.class
 *.log
+.idea/
+*.iml
+*.iws
+*.json
 
 # sbt specific
 .cache
