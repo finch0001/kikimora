@@ -15,9 +15,9 @@ import scala.reflect.io.{Directory, File}
  */
 object Test extends App {
 
-  def deleteHugeFiles(maxSize:Int)(dir:Directory):Unit = {
+  def deleteHugeFiles(maxSize:Int, minSize:Int)(dir:Directory):Unit = {
     for(f ← dir.deepFiles){
-      if(f.length > maxSize) {
+      if(f.length > maxSize || f.length < minSize) {
         println(s"Deleting ${f.toAbsolute.path}")
         f.delete()
       }
@@ -36,8 +36,8 @@ object Test extends App {
   val trainDir = new JFile("train")
   val evalDir = new JFile("test")
 
-  //Delete dangerously large files
-  def deleteFilesLargerThan5MB = deleteHugeFiles(5 * 1024 * 1024) _
+  //Delete dangerously large files & too small files
+  def deleteFilesLargerThan5MB = deleteHugeFiles(2 * 1024 * 1024, 700) _
   deleteFilesLargerThan5MB(new Directory(trainDir))
   deleteFilesLargerThan5MB(new Directory(evalDir))
 
@@ -45,6 +45,7 @@ object Test extends App {
   val config = LiblinearConfig(cost=5.0,eps=0.01)
   val featurizer = new BowFeaturizer(stopwords)
   val classifier = trainClassifier(config, featurizer, trainingExamples)
+  saveClassifier(classifier,"classifier")
 
   // Comment out the above line and uncomment the following if you want to try
   // the hashing trick.
