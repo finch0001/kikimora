@@ -37,9 +37,9 @@ object Test extends App {
   val evalDir = new JFile("test")
 
   //Delete dangerously large files & too small files
-  def deleteFilesLargerThan5MB = deleteHugeFiles(2 * 1024 * 1024, 700) _
-  deleteFilesLargerThan5MB(new Directory(trainDir))
-  deleteFilesLargerThan5MB(new Directory(evalDir))
+  def deleteFilesLargerThan2MBAndSmallerThan700B = deleteHugeFiles(2 * 1024 * 1024, 700) _
+  deleteFilesLargerThan2MBAndSmallerThan700B(new Directory(trainDir))
+  deleteFilesLargerThan2MBAndSmallerThan700B(new Directory(evalDir))
 
   val trainingExamples = fromLabeledDirs(trainDir).toIndexedSeq
   val config = LiblinearConfig(cost=5.0,eps=0.01)
