@@ -39,8 +39,13 @@ object TestingData extends App{
     val browser = new Browser
     val docOpt: Option[Document] = Try(browser.get(link)).toOption
     docOpt.fold(())( doc => {
-      //texte auslesen
-      val text: String = readText(doc)
+      val lang: String = doc >> attr("lang")("html")
+      println(lang)
+      val text: String = {if((lang.toLowerCase).contains("de")) {
+        //texte auslesen
+        readText(doc)
+      }
+      else ""}
       val links: List[String] = getLinks(doc)
       val path: String = "test/"+splitCuisine(v)+"/"+id
       val bwOpt: Option[BufferedWriter] = Try(new BufferedWriter(new FileWriter(new File(path)))).toOption
@@ -110,7 +115,13 @@ object TestingData extends App{
       val browser = new Browser
       val docOpt: Option[Document] = Try(browser.get(uri)).toOption
       docOpt.fold(())( doc => {
-        bw.write(readText(doc))
+        val lang: String = doc >> attr("lang")("html")
+        if((lang.toLowerCase).contains("de")) {
+          //texte auslesen
+
+          bw.write(readText(doc))
+        }
+        else bw.write("")
       })
     }
     link match {
