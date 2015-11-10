@@ -1,5 +1,7 @@
-# kikimora
-Applied machine-learning to improve OpenStreetMap data.
+# ScalaJS React Base Project
 
-TrainingData/TestingData creates files in folders (named by cuisines).
-Test - trains a classifier by using the training data and predict cuisines for testing data
+This is a project which can serve as a basis when starting new projects
+with ScalaJS + React in the frontend and Play in the backend.
+
+Just clone it, refactor the package name and get going.
+

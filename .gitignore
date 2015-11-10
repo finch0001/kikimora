@@ -1,3 +1,4 @@
+*.osm.bz2
 *.class
 *.log
 .idea/

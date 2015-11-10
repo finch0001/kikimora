@@ -1,0 +1,20 @@
+@(title: String)(content: Html)
+
+@import play.twirl.api
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <title>@title</title>
+    <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/main.css")">
+    <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/normalize.css")">
+    @*<script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/react/0.12.1/react-with-addons.min.js"></script>*@
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js" type="text/javascript"></script>
+    <script src="https://fb.me/react-with-addons-0.13.3.js" type="text/javascript"></script>
+  </head>
+  <body>
+    @content
+    @playscalajs.html.scripts("client")
+  </body>
+</html>

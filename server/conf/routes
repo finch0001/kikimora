@@ -1,0 +1,7 @@
+GET        /        controllers.Application.index()
+POST        /predict controllers.Application.predict()
+GET        /predictionform controllers.Application.loadform()
+POST        /getosmdata controllers.Application.getdata()
+
+# Assets
+GET        /assets/*file        controllers.Assets.at(path="/public", file)
