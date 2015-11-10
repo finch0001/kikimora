@@ -1,7 +1,7 @@
 package io.plasmap
 
 import io.plasmap.components.{PredictionComponent, Tabelle}
-import japgolly.scalajs.react.React
+import japgolly.scalajs.react.{ReactDOM, React}
 import org.scalajs.dom.ext.Ajax
 
 import scala.scalajs.js
@@ -25,7 +25,7 @@ object App extends js.JSApp {
 */
     Ajax.get("/").onComplete{
       case Success(s) => {
-        React.render(PredictionComponent.component(), containerNode)
+        ReactDOM.render(PredictionComponent.component(), containerNode)
       }
       case Failure(f) => println("Tja")
     }

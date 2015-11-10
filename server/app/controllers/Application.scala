@@ -20,14 +20,12 @@ object Application extends Controller {
     request ⇒ Future(Ok(views.html.index()))
   }
 
-
-
   def getdata() = Action.async {
     request ⇒ Future{
       request.body.asText.map(
         (text:String) => {
           val id = upickle.default.read[String](text)
-          val tags: List[(String, String)] = OnlineVersion.getXML(id)
+          val tags: Map[String, String] = OnlineVersion.getXML(id).toMap
           Ok(write(tags))
         }).getOrElse(
           BadRequest("Bad Request")
