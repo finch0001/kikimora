@@ -1,8 +1,8 @@
 import sbt.Project.projectToRef
 
-name := "scalareactjs"
+name := "kikimora"
 
-organization := "codes.mark"
+organization := "io.plasmap"
 
 lazy val clients = Seq(client)
 

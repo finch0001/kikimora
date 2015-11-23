@@ -16,7 +16,7 @@ import org.scalajs.dom
 /**
   * Created by mark on 10.11.15.
   */
-object FoundationWrapper {
+object Foundation {
   def basic(children:ReactTag*) = {
     <.div( ^.cls := "row")(
       <.div( ^.cls := "small-12 large-4 large-offset-4 columns")(
@@ -25,4 +25,14 @@ object FoundationWrapper {
     )
   }
 
+  def editorView(left: ReactTag, right: ReactTag) = {
+    <.div(^.cls := "row fullWidth")(
+      <.div(^.cls := "small-12 large-3 columns")(
+        left
+      ),
+      <.div(^.cls := "small-12 large-9 columns")(
+        right
+      )
+    )
+  }
 }

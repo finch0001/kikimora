@@ -1,29 +1,23 @@
 package prediction
 
-import java.io.{File, FileWriter, BufferedWriter}
-import java.net.URL
-
-import io.plasmap.model.OsmObject
-import io.plasmap.parser.OsmParser
-import nak.NakContext._
 import nak.core.{FeaturizedClassifier, IndexedClassifier}
-import nak.data.Example
-import net.ruippeixotog.scalascraper.browser.Browser
-import net.ruippeixotog.scalascraper.scraper.ContentExtractors._
-import org.jsoup.nodes.{Element, Document}
 import nak.NakContext._
-import nak.core._
-import nak.data.Example
-import java.io.{BufferedWriter, File, FileWriter}
+import java.io.File
 import java.net.URL
 
-import io.plasmap.parser.OsmParser
 import net.ruippeixotog.scalascraper.browser.Browser
 import net.ruippeixotog.scalascraper.dsl.DSL.Extract._
 import net.ruippeixotog.scalascraper.dsl.DSL._
 import org.jsoup.nodes.{Document, Element}
-import scala.reflect.io.Directory
+import org.jsoup.select.Elements
+
+import scalaz.\/
+
+//import robots.protocol.exclusion.robotstxt.RobotstxtParser
+//import robots.protocol.exclusion.html.Page
+import scala.io.Source
 import scala.util.Try
+
 
 /**
  * Created by erna on 11/2/15.
@@ -37,7 +31,7 @@ object Predict {
   }
 
   def getLinks(doc: Document): List[String] = {
-    val linksOpt = doc >?> elementList("a") >> attr("href")("a")
+    val linksOpt:Option[List[String]] = doc >?> elementList("a") >> attr("href")("a")
     linksOpt.getOrElse(Nil)
   }
 
@@ -46,17 +40,17 @@ object Predict {
     val link: String = url(website)
     val browser = new Browser
     val docOpt: Option[Document] = Try(browser.get(link)).toOption
-    var texts = ""
-    docOpt.fold(())(doc => {
-          //texte auslesen
-          readText(doc)
 
+    docOpt.map(doc => {
+    //texte auslesen
+      val text = readText(doc)
+      val disallowList = getLinksFromRobots(getBaseUrl(link).getOrElse(""))
+      println(disallowList)
 
-      val links: List[String] = getLinks(doc)
-      val text2 = for (l <- links.distinct) yield  (scrapeURL(l, link)).mkString
-      texts=text+" "+text2
-      })
-    texts
+      val links: List[String] = getLinks(doc).distinct.filterNot(disallowList.toSet)
+      links.foldLeft(text)((texts, l) => texts + scrapeURL(l, link).mkString
+        )
+    }).getOrElse("")
   }
 
   def url(website: String): String = {
@@ -71,6 +65,7 @@ object Predict {
   }
 
   def readText(doc: Document): String = {
+    import scalaz._, Scalaz._
     val html: Option[Element] = doc >?> element("html")
     html.map(x => {
       recursiveGet(x)
@@ -95,14 +90,7 @@ object Predict {
     def readFromFile(uri: String): String = {
       val browser = new Browser
       val docOpt: Option[Document] = Try(browser.get(uri)).toOption
-      var text=""
-      docOpt.fold(())(doc => {
-          //texte auslesen
-
-          text=readText(doc)
-
-      })
-      text
+      docOpt.map(readText).getOrElse("")
     }
     link match {
       case _ if link.startsWith("http") || link.startsWith("www") =>
@@ -124,6 +112,32 @@ object Predict {
     } else {
       List[File]()
     }
+  }
+
+  def getLinksFromRobots(link: String): List[String] = {
+    def trimAll(s: String, bad: String): String = {
+      @scala.annotation.tailrec def start(n: Int): String =
+        if (n == s.length) ""
+        else if (bad.indexOf(s.charAt(n)) < 0) end(n, s.length)
+        else start(1 + n)
+
+      @scala.annotation.tailrec def end(a: Int, n: Int): String =
+        if (n <= a) s.substring(a, n)
+        else if (bad.indexOf(s.charAt(n - 1)) < 0) s.substring(a, n)
+        else end(a, n - 1)
+
+      start(0)
+    }
+    def getDisallowed(line:String): String = {
+      if(line.startsWith("Disallow:")&&line.length>10) {
+        getBaseUrl(link).getOrElse("")+trimAll(line.substring(10)," \t\n\r")
+      }
+      else ""
+    }
+    val rob = link+"/robots.txt"
+    \/.fromTryCatchNonFatal{
+      (for (line <- Source.fromURL(rob).getLines()) yield getDisallowed(line)).toList
+    }.getOrElse(Nil).distinct
   }
 
   def run(web:String, t:String): String = {
