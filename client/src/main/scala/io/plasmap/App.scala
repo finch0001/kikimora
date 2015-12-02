@@ -1,5 +1,6 @@
 package io.plasmap
 
+import io.plasmap.components.PredictionComponent.PredictionProps
 import io.plasmap.components.{PredictionComponent, Tabelle}
 import japgolly.scalajs.react.{ReactDOM, React}
 import org.scalajs.dom.ext.Ajax
@@ -16,16 +17,16 @@ import upickle.default._
  */
 object App extends js.JSApp {
   def main():Unit = {
-    val containerNode = dom.document.getElementById("react-container")
-/*    Ajax.get("/predict").onComplete{
-      case Success(s) =>
-        React.render(Tabelle.component(read[List[(String, String)]](s.responseText)), containerNode)
-      case Failure(f) => println("Tja")
-    }
-*/
+    val byId = dom.document.getElementById _
+    val containerNode = byId("react-container")
+    val tokenNode  = byId("token")
+    val secretNode = byId("secret")
+
+    println(tokenNode.textContent)
+
     Ajax.get("/").onComplete{
       case Success(s) => {
-        ReactDOM.render(PredictionComponent.component(), containerNode)
+        ReactDOM.render(PredictionComponent.component(PredictionProps(tokenNode.textContent,secretNode.textContent)), containerNode)
       }
       case Failure(f) => println("Tja")
     }

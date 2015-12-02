@@ -13,7 +13,10 @@ lazy val server = (project in file("server")).settings(
   scalaJSProjects := clients,
   pipelineStages := Seq(scalaJSProd, gzip),
   resolvers ++= Seq("scalaz-bintray" at "https://dl.bintray.com/scalaz/releases",
-    "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"),
+    "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots",
+    "Sonatype Releases" at "https://oss.sonatype.org/content/repositories/releases/",
+    "spray repo" at "http://repo.spray.io",
+    "spray nightlies repo" at "http://nightlies.spray.io"),
   libraryDependencies ++= Seq(
     "com.vmunier"          %% "play-scalajs-scripts" % "0.3.0"  ,
     "org.scalaz"           %% "scalaz-core"          % "7.1.3"  ,
@@ -26,6 +29,7 @@ lazy val server = (project in file("server")).settings(
     "org.scalanlp" % "nak" % "1.2.1",
     "com.github.haifengl" % "smile-core" % "1.0.2",
     "com.github.haifengl" % "smile-plot" % "1.0.2",
+    ws,
     specs2 % Test
   )
 ).enablePlugins(PlayScala)
@@ -43,7 +47,10 @@ lazy val client = (project in file("client")).settings(
     "com.github.japgolly.scalajs-react"               %%% "ext-scalaz71" % "0.10.1",
     "com.github.japgolly.scalajs-react"               %%% "ext-monocle"  % "0.10.1",
     "com.github.chandu0101.scalajs-react-components"  %%% "core"         % "0.1.0",
-    "com.lihaoyi" %%% "upickle" % "0.3.6"
+    "com.lihaoyi" %%% "upickle" % "0.3.6",
+    "com.hunorkovacs" %% "koauth" % "1.1.0",
+    "io.spray" %% "spray-can" % "1.3.3",
+    "org.scalatra" %% "scalatra" % "2.3.1"
   ),
   jsDependencies += "org.webjars.npm" % "react"     % "0.14.1" / "react-with-addons.js" commonJSName "React"    minified "react-with-addons.min.js",
   jsDependencies += "org.webjars.npm" % "react-dom" % "0.14.1" / "react-dom.js"         commonJSName "ReactDOM" minified "react-dom.min.js" dependsOn "react-with-addons.js"

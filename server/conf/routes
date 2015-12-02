@@ -2,6 +2,9 @@ GET        /        controllers.Application.index()
 POST        /predict controllers.Application.predict()
 GET        /predictionform controllers.Application.loadform()
 POST        /getosmdata controllers.Application.getdata()
+GET         /login controllers.Application.login()
+GET         /authenticate controllers.OSM.authenticate()
+POST        /save       controllers.Application.save()
 
 # Assets
 GET        /assets/*file        controllers.Assets.at(path="/public", file)

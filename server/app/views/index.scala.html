@@ -1,3 +1,9 @@
+@(token: String, secret: String)
+
+@import play.twirl.api
+
 @main("Main page"){
+  <div id="token" style="display:none">@token</div>
+  <div id="secret" style="display:none">@secret</div>
   <div id="react-container"></div>
 }

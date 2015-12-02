@@ -15,7 +15,11 @@ object PredictionComponent {
                     id: String,
                     tags: Map[String, String]
                     )
-  val component = ReactComponentB[Unit]("Prediction Component")
+  case class PredictionProps(
+                            oauthToken: String,
+                            oauthVerifier: String
+                              )
+  val component = ReactComponentB[PredictionProps]("Prediction Component")
     .initialState(State(1, "", Map.empty))
     .renderPS((scope, props, state) ⇒ {
 
@@ -26,6 +30,6 @@ object PredictionComponent {
       else TableComponent.component(state.tags)
     )
 
-  }).buildU
+  }).build
 
 }

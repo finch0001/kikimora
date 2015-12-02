@@ -25,6 +25,7 @@ object FormComponent {
     .render( scope ⇒ {
       val props = scope.props
       val state = scope.state
+      
       Foundation.basic(
         <.div( ^.cls := "row collapse")(
           <.div( ^.cls := "small-8 columns")(
