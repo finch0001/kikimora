@@ -36,7 +36,8 @@ object Application extends Controller {
         (text:String) => {
           val id = upickle.default.read[String](text)
           val tags: Map[String, String] = OnlineVersion.getXML(id).toMap
-          Ok(write(tags))
+          println(id)
+          Ok(write((tags,id)))
         }).getOrElse(
           BadRequest("Bad Request")
         )
@@ -74,9 +75,9 @@ object Application extends Controller {
     implicit request => {
       OSM.sessionTokenPair.map( credentials =>
         {
-          WS.url(/*"http://api.openstreetmap.org/api/0.6/node/#id"*/"http://api.openstreetmap.org/api/0.6/capabilities")
+          WS.url("http://api.openstreetmap.org/api/0.6/changeset/create")
             .sign(OAuthCalculator(OSM.Key, credentials))
-            .get
+            .put(OnlineVersion.createChangeset("test", "Kikimora"))
             .map(r => {println("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n\n\n\n"+r.body+"\n\n\n\n\n\n"); r})
             .map(result => Ok(result.body))
         }).getOrElse(Future.successful(Redirect(routes.OSM.authenticate)))

@@ -18,7 +18,7 @@ import org.scalajs.dom
   */
 object FormComponent {
   case class FormState(id:String, list: List[(String,String)])
-  case class FormProps(update:Map[String,String] => Callback)
+  case class FormProps(update:((Map[String,String],String)) => Callback)
 
   val component = ReactComponentB[FormProps]("Form Component")
     .initialState(FormState("",Nil))

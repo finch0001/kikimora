@@ -23,8 +23,8 @@ object FromServer {
     (CallbackTo future fut).void
   }
 
-  def osmData(id:String, callback: (Map[String, String]) => Callback) = {
-    post(write[String], read[Map[String, String]])(
+  def osmData(id:String, callback: ((Map[String, String],String)) => Callback) = {
+    post(write[String], read[(Map[String, String],String)])(
       "/getosmdata", id, callback
     )
   }

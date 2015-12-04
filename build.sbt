@@ -24,7 +24,7 @@ lazy val server = (project in file("server")).settings(
     "com.chuusai"          %% "shapeless"            % "2.2.5"  ,
     "org.webjars"           % "jquery"               % "1.11.1" ,
     "com.lihaoyi" %% "upickle" % "0.3.6",
-    "io.plasmap" %% "geow" % "0.3.6-SNAPSHOT",
+    "io.plasmap" %% "geow" % "0.3.11-SNAPSHOT",
     "net.ruippeixotog" %% "scala-scraper" % "0.1.1",
     "org.scalanlp" % "nak" % "1.2.1",
     "com.github.haifengl" % "smile-core" % "1.0.2",

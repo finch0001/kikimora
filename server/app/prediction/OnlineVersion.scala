@@ -2,7 +2,7 @@ package prediction
 
 import io.plasmap.parser.impl.OsmXmlParser
 import scala.collection.immutable
-import scala.collection.immutable.Seq
+import scala.collection.immutable.{Iterable, Seq}
 import scala.io.Source
 import scala.xml.{NodeSeq, Node}
 import scala.xml.parsing.XhtmlParser
@@ -45,4 +45,34 @@ object OnlineVersion extends App{
 
   }
 
+  def createChangeset(comment: String, createdBy: String): String = {
+    val changeset = "" +
+      "<osm>" +
+      "   <changeset>"
+      "       <tag k=\"comment\" v=\"" + comment + "\" />" +
+      "       <tag k=\"created_by\" v=\"" + createdBy + "\" />" +
+      "       <tag k=\"bot\" v=\"yes\" />" +
+      "   </changeset>" +
+      "</osm>"
+  }
+
+  def closeChangeset(id: String) {
+    //Close: PUT /api/0.6/changeset/#id/close
+    //return nothing, code 200 or error code
+  }
+/*
+  def createNode(id: String, changesetID: String,  newTags: Map[String, String]): String = {
+    val node = "" +
+    "<osm>"+
+      "<node>"+
+        tagsSet(newTags) +
+      "</node>"+
+    "/osm"
+  }
+
+  def tagsSet(tags: Map[String, String]): String = {
+    val result = for ((k,v) <- tags) yield {"<tag k=\"" + k + "\" v=\"" + v + "\" />"}
+
+  }
+*/
 }

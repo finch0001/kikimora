@@ -16,7 +16,7 @@ import scala.io.Source._
  */
 object OSM extends Controller {
 
-  val Key = ConsumerKey("kaBUHnpdqvVcCJlAxW3uOdykXABbrhFEct2gu0Lc", "WzDPlx4zK0bTEKNiubQeGcLD5HhQtw7manUbZqxE")
+  val Key = ConsumerKey("n6lWoxR6hpaU5OCKjvAsuc4Sy8fqo3lKK9nnWx74", "LnSaRNYqIrLkmlUs2FX7qXmKXpUJiHWCg3KZ4m5k")
 
   val Osm = OAuth(ServiceInfo(
 
