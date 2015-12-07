@@ -1,5 +1,7 @@
 package controllers
 
+import java.io.{File, PrintWriter}
+
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.libs.oauth._
 import play.api.libs.ws.WS
@@ -8,7 +10,7 @@ import play.api.Play.current
 import prediction.{OnlineVersion, Predict, EvaluateClassifier}
 import scala.concurrent.{Await, Future}
 import upickle.default._
-import scala.io.Source._
+
 /**
  * Created by mark on 04.08.15.
  */
@@ -75,9 +77,15 @@ object Application extends Controller {
     implicit request => {
       OSM.sessionTokenPair.map( credentials =>
         {
-          WS.url("http://api.openstreetmap.org/api/0.6/changeset/create")
+          println(
+          credentials
+          )
+          val writer = new PrintWriter(new File("changeset" ))
+          writer.write(OnlineVersion.createChangeset("test", "Kikimora"))
+          writer.close()
+          WS.url("http://api06.dev.openstreetmap.org/api/0.6/changeset/create")
             .sign(OAuthCalculator(OSM.Key, credentials))
-            .put(OnlineVersion.createChangeset("test", "Kikimora"))
+            .put(new File("changeset"))
             .map(r => {println("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n\n\n\n"+r.body+"\n\n\n\n\n\n"); r})
             .map(result => Ok(result.body))
         }).getOrElse(Future.successful(Redirect(routes.OSM.authenticate)))

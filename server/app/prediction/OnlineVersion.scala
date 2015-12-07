@@ -46,18 +46,20 @@ object OnlineVersion extends App{
   }
 
   def createChangeset(comment: String, createdBy: String): String = {
-    val changeset = "" +
-      "<osm>" +
-      "   <changeset>"
-      "       <tag k=\"comment\" v=\"" + comment + "\" />" +
-      "       <tag k=\"created_by\" v=\"" + createdBy + "\" />" +
-      "       <tag k=\"bot\" v=\"yes\" />" +
-      "   </changeset>" +
-      "</osm>"
+      s"""
+         |<?xml version="1.0" encoding="UTF-8"?>
+         |<osm version="0.6" generator="Kikimora">
+         |  <changeset>
+         |    <tag k='comment' v='$comment' />
+         |    <tag k='created_by' v='$createdBy' />
+         |    <tag k='bot' v='yes' />
+         |  </changeset>
+         |</osm>
+      """.stripMargin.filterNot(_ == '\n').mkString
   }
 
   def closeChangeset(id: String) {
-    //Close: PUT /api/0.6/changeset/#id/close
+    //Close: PUT /api/0.6/changeset/
     //return nothing, code 200 or error code
   }
 /*

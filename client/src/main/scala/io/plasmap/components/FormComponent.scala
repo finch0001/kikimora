@@ -21,7 +21,7 @@ object FormComponent {
   case class FormProps(update:((Map[String,String],String)) => Callback)
 
   val component = ReactComponentB[FormProps]("Form Component")
-    .initialState(FormState("",Nil))
+    .initialState(FormState("633264540",Nil))
     .render( scope ⇒ {
       val props = scope.props
       val state = scope.state
@@ -31,6 +31,7 @@ object FormComponent {
           <.div( ^.cls := "small-8 columns")(
             <.input(
               ^.tpe := "text",
+              ^.value := state.id,
               ^.onChange ==> ((e: ReactEventI) => scope.modState(c => c.copy(id = e.target.value)))
             )
           ),

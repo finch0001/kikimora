@@ -6,8 +6,7 @@ import play.api.libs.oauth.{RequestToken, ConsumerKey, ServiceInfo, OAuth}
 import play.api.mvc._
 import prediction.{OnlineVersion, Predict, EvaluateClassifier}
 import scala.concurrent.{Await, Future}
-import upickle.default._
-import scala.io.Source._
+
 
 
 
@@ -16,13 +15,13 @@ import scala.io.Source._
  */
 object OSM extends Controller {
 
-  val Key = ConsumerKey("n6lWoxR6hpaU5OCKjvAsuc4Sy8fqo3lKK9nnWx74", "LnSaRNYqIrLkmlUs2FX7qXmKXpUJiHWCg3KZ4m5k")
+  val Key = ConsumerKey("xxxx", "xxxx")
 
   val Osm = OAuth(ServiceInfo(
 
-    "http://www.openstreetmap.org/oauth/request_token",
-    "http://www.openstreetmap.org/oauth/access_token",
-    "http://www.openstreetmap.org/oauth/authorize", Key),
+    "http://master.apis.dev.openstreetmap.org/oauth/request_token",
+    "http://master.apis.dev.openstreetmap.org/oauth/access_token",
+    "http://master.apis.dev.openstreetmap.org/oauth/authorize", Key),
     true)
 
   def authenticate = Action { request =>
@@ -37,7 +36,7 @@ object OSM extends Controller {
         case Left(e) => throw e
       }
     }.getOrElse{
-        val token = Osm.retrieveRequestToken("http://localhost:9000/")
+        val token = Osm.retrieveRequestToken("http://kikimora.plasmap.io:9000/")
         token match {
           case Right(t) => {
             // We received the unauthorized tokens in the OAuth object - store it before we proceed
