@@ -1,6 +1,7 @@
 package io.plasmap.components
 
 import io.plasmap.components.FormComponent.FormProps
+import io.plasmap.components.LoginForm.LoginFormProps
 import io.plasmap.components.TableComponent.TableProps
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.prefix_<^._
@@ -16,21 +17,21 @@ object PredictionComponent {
                     id: String,
                     tags: Map[String, String]
                     )
-  case class PredictionProps(
-                            oauthToken: String,
-                            oauthVerifier: String
-                              )
-  val component = ReactComponentB[PredictionProps]("Prediction Component")
+  //case class PredictionProps(loggedIn: Boolean)
+  val component = ReactComponentB[/*PredictionProps*/Unit]("Prediction Component")
     .initialState(State(1, "", Map.empty))
     .renderPS((scope, props, state) ⇒ {
 
     def updateTags(tags: (Map[String,String],String)): Callback = scope.modState(_.copy(tags=tags._1, id=tags._2, formId=2))
+    def login(message: String): Callback = scope.modState(_.copy(formId = 3))
     <.div(
-      if (state.formId == 1) FormComponent.component(FormProps(updateTags))
+      if (state.formId == 3) FormComponent.component(FormProps(updateTags))
 
-      else TableComponent.component(TableProps(state.tags, state.id))
+      else if (state.formId == 2) TableComponent.component(TableProps(state.tags, state.id))
+
+      else LoginForm.component(LoginFormProps(login))
     )
 
-  }).build
+  }).buildU
 
 }

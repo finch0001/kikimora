@@ -1,7 +1,13 @@
-# ScalaJS React Base Project
+# Kikimora
 
-This is a project which can serve as a basis when starting new projects
-with ScalaJS + React in the frontend and Play in the backend.
+Kikimora is an editor for POIs in OpenStreetMap
 
-Just clone it, refactor the package name and get going.
+Features
+*Add new Tags
+*Change Tags
+*Predict values for some tags (machine learning)
+
+The project is a Server/Client-Application, based on the [ScalaJS React Base Project](https://github.com/plasmap/react-base-template)
+
+
 

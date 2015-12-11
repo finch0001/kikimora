@@ -15,7 +15,7 @@ import scala.concurrent.{Await, Future}
  */
 object OSM extends Controller {
 
-  val Key = ConsumerKey("xxxx", "xxxx")
+  val Key = ConsumerKey("mkmavSAhsMRRrQ8ba3WUtVmQb1jbOyfH7aNmgxYh", "OlulqT9MZuNI9U6x3jE2zu8KvWCvY6cZnqTZxrCw")
 
   val Osm = OAuth(ServiceInfo(
 
@@ -36,7 +36,7 @@ object OSM extends Controller {
         case Left(e) => throw e
       }
     }.getOrElse{
-        val token = Osm.retrieveRequestToken("http://kikimora.plasmap.io:9000/")
+        val token = Osm.retrieveRequestToken("http://kikimora.plasmap.io/")
         token match {
           case Right(t) => {
             // We received the unauthorized tokens in the OAuth object - store it before we proceed

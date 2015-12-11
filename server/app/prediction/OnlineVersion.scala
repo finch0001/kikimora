@@ -1,5 +1,6 @@
 package prediction
 
+import io.plasmap.model.OsmNode
 import io.plasmap.parser.impl.OsmXmlParser
 import scala.collection.immutable
 import scala.collection.immutable.{Iterable, Seq}

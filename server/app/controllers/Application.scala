@@ -2,9 +2,10 @@ package controllers
 
 import java.io.{File, PrintWriter}
 
+import io.plasmap.model.OsmNode
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.libs.oauth._
-import play.api.libs.ws.WS
+import play.api.libs.ws.{WSAuthScheme, WS}
 import play.api.mvc._
 import play.api.Play.current
 import prediction.{OnlineVersion, Predict, EvaluateClassifier}
@@ -17,19 +18,11 @@ import upickle.default._
 object Application extends Controller {
 
   def index() = Action.async {
-    request ⇒ Future{
-      val loginOpt = for {
-        token <- request.session.get("token")
-        secret <- request.session.get("secret")
-      } yield (token, secret)
-      loginOpt.map{
-        case (t,s) => Ok(views.html.index(t,s))
-        }.getOrElse(Redirect(routes.OSM.authenticate))
-    }
+    request ⇒ Future(Ok(views.html.index()))
   }
 
   def loadform() = Action.async {
-    request ⇒ Future(Ok(views.html.index("","")))
+    request ⇒ Future(Ok(views.html.index()))
   }
 
   def getdata() = Action.async {
@@ -60,35 +53,42 @@ object Application extends Controller {
   }
 
   def login() = Action.async {
-    implicit request =>
-      OSM.sessionTokenPair match {
-        case Some(credentials) => {
-          WS.url("http://api.openstreetmap.org/api/0.6/capabilities")
-            .sign(OAuthCalculator(OSM.Key, credentials))
-            .get
+    request ⇒ {
+      request.body.asText.map(
+        (text:String) => {
+          val (username, password) = upickle.default.read[(String,String)](text)
+          println("HAHAHAHAHAHAHAHAHA\n\n\n\n\n")
+          WS.url("http://api06.dev.openstreetmap.org/api/0.6/permissions")
+          .withAuth(username, password, WSAuthScheme.BASIC)
+          .get
             .map(r => {println("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n\n\n\n"+r.body+"\n\n\n\n\n\n"); r})
-            .map(result => Ok(result.body))
-        }
-        case _ => Future.successful(Redirect(routes.OSM.authenticate))
-      }
+          .map(result => Ok(write(result.body)).withSession("username" -> username, "password"-> password))
+        }).getOrElse(
+          Future.successful(Redirect(routes.Application.login()))
+        )
+    }
   }
 
   def save() = Action.async {
-    implicit request => {
-      OSM.sessionTokenPair.map( credentials =>
-        {
-          println(
-          credentials
-          )
+     request => {
+       request.body.asText.map(
+         (test:String) => {
+       val userData = request.session.data
+       val username: String = userData.getOrElse("username","")
+       val userpass: String = userData.getOrElse("password","")
+           println(username + userpass)
           val writer = new PrintWriter(new File("changeset" ))
           writer.write(OnlineVersion.createChangeset("test", "Kikimora"))
           writer.close()
+          println("\n\n\nLALALA")
           WS.url("http://api06.dev.openstreetmap.org/api/0.6/changeset/create")
-            .sign(OAuthCalculator(OSM.Key, credentials))
-            .put(new File("changeset"))
-            .map(r => {println("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n\n\n\n"+r.body+"\n\n\n\n\n\n"); r})
-            .map(result => Ok(result.body))
-        }).getOrElse(Future.successful(Redirect(routes.OSM.authenticate)))
+          .withAuth(username,userpass, WSAuthScheme.BASIC)
+          .put(new File("changeset"))
+            .map(r=>{
+            println("\n\n\nLALALA"+r.body); r})
+          .map(result => Ok(write(result.body)))
+        }
+      ).getOrElse({println("\n\n error1");Future.successful(Redirect(routes.Application.index()))})
     }
   }
 }

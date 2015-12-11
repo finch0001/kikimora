@@ -34,4 +34,10 @@ object FromServer {
       "/predict", (website, category), callback
     )
   }
+
+  def login(username: String, password: String, callback: (String) => Callback) = {
+    post(write[(String, String)], read[String])(
+      "/login", (username,password), callback
+    )
+  }
 }
