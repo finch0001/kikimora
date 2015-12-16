@@ -24,10 +24,11 @@ object PredictionComponent {
 
     def updateTags(tags: (Map[String,String],String)): Callback = scope.modState(_.copy(tags=tags._1, id=tags._2, formId=2))
     def login(message: String): Callback = scope.modState(_.copy(formId = 3))
+    def resultPrintLn(answer: String): Callback = Callback(println(answer))
     <.div(
       if (state.formId == 3) FormComponent.component(FormProps(updateTags))
 
-      else if (state.formId == 2) TableComponent.component(TableProps(state.tags, state.id))
+      else if (state.formId == 2) TableComponent.component(TableProps((state.tags, state.id), resultPrintLn))
 
       else LoginForm.component(LoginFormProps(login))
     )

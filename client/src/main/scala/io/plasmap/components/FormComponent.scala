@@ -21,7 +21,7 @@ object FormComponent {
   case class FormProps(update:((Map[String,String],String)) => Callback)
 
   val component = ReactComponentB[FormProps]("Form Component")
-    .initialState(FormState("633264540",Nil))
+    .initialState(FormState("3891486472",Nil))
     .render( scope ⇒ {
       val props = scope.props
       val state = scope.state

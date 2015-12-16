@@ -57,12 +57,10 @@ object Application extends Controller {
       request.body.asText.map(
         (text:String) => {
           val (username, password) = upickle.default.read[(String,String)](text)
-          println("HAHAHAHAHAHAHAHAHA\n\n\n\n\n")
-          WS.url("http://api06.dev.openstreetmap.org/api/0.6/permissions")
+          WS.url("http://www.openstreetmap.org/api/0.6/user/details")
           .withAuth(username, password, WSAuthScheme.BASIC)
           .get
-            .map(r => {println("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n\n\n\n"+r.body+"\n\n\n\n\n\n"); r})
-          .map(result => Ok(write(result.body)).withSession("username" -> username, "password"-> password))
+          .map(result => Ok(write(result.body)).withSession("username" -> username, "password"-> password, "userid" -> /*OnlineVersion.getUId(result.body)*/"3300201"))
         }).getOrElse(
           Future.successful(Redirect(routes.Application.login()))
         )
@@ -70,25 +68,36 @@ object Application extends Controller {
   }
 
   def save() = Action.async {
-     request => {
+     request ⇒ {
        request.body.asText.map(
-         (test:String) => {
-       val userData = request.session.data
-       val username: String = userData.getOrElse("username","")
-       val userpass: String = userData.getOrElse("password","")
-           println(username + userpass)
-          val writer = new PrintWriter(new File("changeset" ))
-          writer.write(OnlineVersion.createChangeset("test", "Kikimora"))
-          writer.close()
-          println("\n\n\nLALALA")
-          WS.url("http://api06.dev.openstreetmap.org/api/0.6/changeset/create")
-          .withAuth(username,userpass, WSAuthScheme.BASIC)
-          .put(new File("changeset"))
-            .map(r=>{
-            println("\n\n\nLALALA"+r.body); r})
-          .map(result => Ok(write(result.body)))
+         (text:String) => {
+           val tags = upickle.default.read[Map[String,String]](text)
+           val userData = request.session.data
+           val username: String = userData.getOrElse("username","")
+           val userpass: String = userData.getOrElse("password","")
+           val userid: String = userData.getOrElse("userid","")
+           val writer = new PrintWriter(new File("changeset" ))
+           writer.write(OnlineVersion.createChangeset("Edit Cuisine and City", "Kikimora"))
+           writer.close()
+           WS.url("http://www.openstreetmap.org/api/0.6/changeset/create")
+           .withAuth(username,userpass, WSAuthScheme.BASIC)
+           .put(new File("changeset"))
+           .flatMap(r => saveNode(tags, r.body,username,userpass,userid))
+           .map(result => Ok(write(result)))
         }
       ).getOrElse({println("\n\n error1");Future.successful(Redirect(routes.Application.index()))})
     }
+  }
+
+  def saveNode(tags: Map[String, String],changeSet: String, username: String, userpass: String, userid: String): Future[String] = {
+      val (nodeId: String, xml:String) = OnlineVersion.getXMLNode(tags,changeSet,username,userid)
+      println(xml)
+      val writer = new PrintWriter(new File("node"))
+      writer.write(xml)
+      writer.close()
+      WS.url("http://www.openstreetmap.org/api/0.6/node/"+nodeId)
+        .withAuth(username,userpass, WSAuthScheme.BASIC)
+        .put(new File("node"))
+        .map(nodeResult => {println(nodeResult.body);nodeResult.body})
   }
 }

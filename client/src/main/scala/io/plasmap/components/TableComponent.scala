@@ -1,12 +1,15 @@
 package io.plasmap.components
 
-import japgolly.scalajs.react.ReactComponentB
+import japgolly.scalajs.react._
 import japgolly.scalajs.react.CompScope.DuringCallbackU
 import japgolly.scalajs.react.ScalazReact.ReactS
-import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.prefix_<^._
 import japgolly.scalajs.react.ScalazReact._
+import monocle.macros.GenLens
 import org.scalajs.dom.ext.Ajax
+import org.scalajs.dom.html.Input
+import org.scalajs.dom.raw.NodeList
+import scala.collection.immutable.IndexedSeq
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
@@ -17,8 +20,16 @@ import org.scalajs.dom
   */
 object TableComponent {
 
-  case class TableState(cuisine:String, website:String, additionalRows:Int)
-  case class TableProps(tags: (Map[String, String], String))
+  case class TableState(tags:List[(String, String)], id:String, website: String)
+  case class TableProps(tags: (Map[String, String], String),printAnswer:String => Callback)
+
+  val tags = GenLens[TableState](_.tags)
+  val changeKey = (index:Int, key:String) => tags.modify(
+    l => l.updated(index, (key, l(index)._2))
+  )
+  val changeValue = (index:Int, value:String) => tags.modify(
+    l => l.updated(index, (l(index)._1, value))
+  )
 
   def predictButtonClicked(website:Option[String], mod: (String) => Callback):Callback = {
     website.fold(Callback.empty)(
@@ -27,95 +38,113 @@ object TableComponent {
   }
 
   val component = ReactComponentB[TableProps]("Table Component")
-    .initialState(TableState("","",0))
+    .initialState(TableState(Nil,"",""))
     .render((scope ) ⇒ {
       val props = scope.props
       val state = scope.state
-        val table = <.table(^.width := "100%")(
+      def inputsForKV(k:String, v:String, index:Int)= {
+        val finiteSetKeys = Map(
+          "cuisine" -> Cuisines.cuisines
+        )
+        def finite(current:String, options:List[String]): ReactTag = {
           <.tr(
-            <.td("id"),
-            <.td(props.tags._2)
-          ),
-          <.tr(
-            <.td("name"),
-            <.td(props.tags._1.get("name").map(x => <.div(x)).getOrElse(<.input(^.tpe := "text")))
-          ),
-          <.tr(
-            <.td("addr:city"),
-            <.td(props.tags._1.get("addr:city").map(x => <.div(x)).getOrElse(<.input(^.tpe := "text")))
-          ),
-          <.tr(
-            <.td("website"),
-            <.td(props.tags._1.get("website").map(x => <.div(<.a(^.href:=x)(x))).getOrElse(<.input(^.tpe := "text", ^.onChange ==> ((e:ReactEventI) => scope.modState(_.copy(website = e.target.value))))))
-          ),
-          <.tr(
-            <.td("cuisine"),
-            <.td(props.tags._1.get("cuisine").map(x => <.div(x)).getOrElse(
-              if (state.cuisine == "") {
+            <.td(
+              <.input(
+                ^.tpe := "text",
+                ^.value := k,
+                ^.onChange ==> ((e:ReactEventI) => scope.modState(changeKey(index, e.target.value)))
+              )
+            ),
+            <.td(
+              if(current!="") {
+                <.select(
+                  ^.onChange ==> ((e:ReactEventI) => scope.modState(changeValue(index, e.target.value)))
+                )(
+                    for (o <- options) yield {
+                      if (o == current) {
+                        <.option(^.value := o, ^.selected := true)(o)
+                      }
+                      else {
+                        <.option(^.value := o)(o)
+                      }
+                    }
+                  )
+              }
+              else {
                 <.button(^.onClick -->
                   predictButtonClicked(
                     props.tags._1.get("website"),
-                    (result) => scope.modState(_.copy(cuisine = result))
+                    (result) => scope.modState(changeValue(index,result))
                   )
                 )("predict")
               }
-              else {
-                <.select(^.selected := true)(
-                  for (cuisine <- Cuisines.cuisines) yield {
-                    if (cuisine == state.cuisine) {
-                      <.option(^.value := cuisine, ^.selected := true)(cuisine)
-                    }
-                    else {
-                      <.option(^.value := cuisine)(cuisine)
-                    }
-                  }
-                )
-              }
-            ))
+            )
+          )
+        }
+        def regular(value:String): ReactTag = {
+          <.tr(
+            <.td(
+              <.input(
+              ^.tpe := "text",
+              ^.value := k,
+              ^.onChange ==> ((e:ReactEventI) => scope.modState(changeKey(index, e.target.value)))
+              )
+            ),
+            <.td(
+              <.input(
+                ^.tpe := "text",
+                ^.value := v,
+                ^.onChange ==> ((e:ReactEventI) => scope.modState(changeValue(index, e.target.value)))
+              )
+            )
+          )
+        }
+        finiteSetKeys.get(k).fold(regular(v))(options => finite(v, options))
+      }
+    val table = <.table(^.width := "100%")(
+        <.tbody(
+          <.tr(
+            <.td("id"),
+            <.td(state.id)
           ),
-          for ((key, value) <- props.tags._1.filterKeys(Set("name", "cuisine", "addr:city","website").contains(_)==false)) yield {
-            <.tr(
-              <.td(key),
-              <.td(value)
-            )
-          },
-          for (x <- 0 to state.additionalRows) yield {
-            <.tr(
-              <.td(<.input(^.tpe := "text")),
-              <.td(<.input(^.tpe := "text"))
-            )
+          for ( ((k,v), index) <- state.tags.zipWithIndex) yield {
+            inputsForKV(k,v,index)
           },
           <.tr(
             <.td(
-              <.button(^.onClick --> scope.modState(_.copy(additionalRows = state.additionalRows+1)))("+")
+              <.button(^.onClick --> scope.modState(tags.modify(_ :+ ("", ""))))("+")
             ),
             <.td()
           ),
           <.tr(
             <.td(),
             <.td(
-              <.button(^.onClick --> Callback{
-                Ajax.get("/save").onComplete {
-                  case Success(s) => {
-                    println(s.responseText)
-                  }
-                  case Failure(f) => println("Tja")
-                }
+              <.button(^.onClick --> {
+                val tagsToSend: Map[String, String] = (state.tags:+("id",state.id)).toMap
+                FromServer.save(tagsToSend,props.printAnswer)
               })("send")
             )
           )
         )
-        val iframe = <.iframe( ^.width := "100%", ^.height := "800px", ^.src := state.website )
+        )
+        val iframe = <.iframe( ^.width := "100%", ^.height := "800px", ^.src := state.tags.toMap.getOrElse("website","") )
       Foundation.editorView(table, iframe)
     })
-    .componentWillMount( cwu =>
-      if(cwu.props.tags._1.contains("website")) {
-        val y = cwu.props.tags._1.get("website").get
+    .componentWillMount( cwm => {
+      def setTags(s:TableState):TableState =
+
+        s.copy(tags =
+          if(cwm.props.tags._1.contains("cuisine")) cwm.props.tags._1.-("id").toList
+          else cwm.props.tags._1.-("id").toList:+("cuisine","")
+          , id=cwm.props.tags._2)
+
+      if(cwm.props.tags._1.contains("website")) {
+        val y = cwm.props.tags._1.get("website").get
         println(y)
-        cwu.modState(_.copy(website = y))
+        cwm.modState(x => setTags(x).copy(website = y))
       }
-      else cwu.modState(identity)
-    )
+      else cwm.modState(setTags)
+    })
   .build
 
 }

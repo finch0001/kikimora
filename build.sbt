@@ -42,15 +42,14 @@ lazy val client = (project in file("client")).settings(
   persistLauncher in Test := false,
   sourceMapsDirectories += sharedJs.base / "..",
   libraryDependencies ++= Seq(
-    "org.scala-js"                                    %%% "scalajs-dom"  % "0.8.2",
-    "com.github.japgolly.scalajs-react"               %%% "core"         % "0.10.1",
-    "com.github.japgolly.scalajs-react"               %%% "ext-scalaz71" % "0.10.1",
-    "com.github.japgolly.scalajs-react"               %%% "ext-monocle"  % "0.10.1",
-    "com.github.chandu0101.scalajs-react-components"  %%% "core"         % "0.1.0",
+    "org.scala-js"                                    %%% "scalajs-dom"   % "0.8.2",
+    "com.github.japgolly.scalajs-react"               %%% "core"          % "0.10.1",
+    "com.github.japgolly.scalajs-react"               %%% "ext-scalaz71"  % "0.10.1",
+    "com.github.japgolly.scalajs-react"               %%% "ext-monocle"   % "0.10.1",
+    "com.github.japgolly.fork.monocle"                %%% "monocle-macro" % "1.1.1",
+    "com.github.chandu0101.scalajs-react-components"  %%% "core"          % "0.1.0",
     "com.lihaoyi" %%% "upickle" % "0.3.6",
-    "com.hunorkovacs" %% "koauth" % "1.1.0",
-    "io.spray" %% "spray-can" % "1.3.3",
-    "org.scalatra" %% "scalatra" % "2.3.1"
+    "com.hunorkovacs" %% "koauth" % "1.1.0"
   ),
   jsDependencies += "org.webjars.npm" % "react"     % "0.14.1" / "react-with-addons.js" commonJSName "React"    minified "react-with-addons.min.js",
   jsDependencies += "org.webjars.npm" % "react-dom" % "0.14.1" / "react-dom.js"         commonJSName "ReactDOM" minified "react-dom.min.js" dependsOn "react-with-addons.js"

@@ -3,7 +3,7 @@ POST        /predict         controllers.Application.predict()
 GET         /predictionform  controllers.Application.loadform()
 POST        /getosmdata      controllers.Application.getdata()
 POST        /login           controllers.Application.login()
-GET         /save            controllers.Application.save()
+POST        /save            controllers.Application.save()
 
 # Assets
 GET        /assets/*file     controllers.Assets.at(path="/public", file)

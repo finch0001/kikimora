@@ -40,4 +40,10 @@ object FromServer {
       "/login", (username,password), callback
     )
   }
+
+  def save(tags: Map[String, String], callback: String => Callback) = {
+    post(write[Map[String, String]], read[String])(
+      "/save", tags, callback
+      )
+  }
 }
