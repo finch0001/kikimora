@@ -13,7 +13,7 @@ To improve this situation, OSM editors must be dedicated to specific use-cases a
 Kikimora is a modern approach to make a super-simple POI-editor for OSM, that everyone can use. It uses-applied machine-learning techniques, to automatically extract OSM information so the user doesn't have to do much more than confirming the data. 
 
 ## Features
-This is an initial prototype that is still in its infancies. It is developed as the bachelor thesis of [ErnaF](https://github.com/ErnaF). Currently supported features:
+This is an initial prototype that is still in its infancy. It is developed as the bachelor thesis of [ErnaF](https://github.com/ErnaF). Currently supported features:
 - Automatic prediction of the cuisine tag for restaurants
 - Adding / editing tags
 - Pushing data back to OSM (currently only via login)
