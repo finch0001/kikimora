@@ -16,12 +16,12 @@ import scala.util.{Failure, Success}
 import org.scalajs.dom
 
 /**
-  * Created by mark on 10.11.15.
+  * Created by erna on 10.11.15.
   */
 object TableComponent {
 
-  case class TableState(tags:List[(String, String)], id:String, website: String)
-  case class TableProps(tags: (Map[String, String], String),printAnswer:String => Callback)
+  case class TableState(tags:List[(String, String)], id:String, website: String, city: String, street: String, housenumber: String)
+  case class TableProps(tags: (Map[String, String], String),addr:(List[String],List[String],List[String]),printAnswer:String => Callback)
 
   val tags = GenLens[TableState](_.tags)
   val changeKey = (index:Int, key:String) => tags.modify(
@@ -38,10 +38,11 @@ object TableComponent {
   }
 
   val component = ReactComponentB[TableProps]("Table Component")
-    .initialState(TableState(Nil,"",""))
+    .initialState(TableState(Nil,"","","","",""))
     .render((scope ) ⇒ {
       val props = scope.props
       val state = scope.state
+      println(props.addr)
       def inputsForKV(k:String, v:String, index:Int)= {
         val finiteSetKeys = Map(
           "cuisine" -> Cuisines.cuisines
@@ -110,6 +111,54 @@ object TableComponent {
           for ( ((k,v), index) <- state.tags.zipWithIndex) yield {
             inputsForKV(k,v,index)
           },
+        if(!props.tags._1.contains("addr:city"))
+          {
+            <.tr(
+              <.td("addr:city"),
+              <.td(
+                <.select(
+                  ^.onChange ==> ((e:ReactEventI) => scope.modState(c => c.copy(city = e.target.value)))
+                )(
+                    <.option(^.value := "", ^.selected := true)(""),
+                    for (o <- props.addr._3) yield {
+                        <.option(^.value := o)(o)
+                    }
+                  )
+              )
+            )
+          }
+          else <.div(),
+          if(!props.tags._1.contains("addr:street"))
+          {
+            <.tr(
+              <.td("addr:street"),
+              <.td(<.select(
+                ^.onChange ==> ((e:ReactEventI) => scope.modState(c => c.copy(street = e.target.value)))
+              )(
+                  <.option(^.value := "", ^.selected := true)(""),
+                  for (o <- props.addr._1) yield {
+                    <.option(^.value := o)(o)
+                  }
+                ))
+            )
+          }
+          else <.div(),
+          if(!props.tags._1.contains("addr:housenumber"))
+          {
+            <.tr(
+              <.td("addr:housenumber"),
+              <.td(
+                <.select(
+                ^.onChange ==> ((e:ReactEventI) => scope.modState(c => c.copy(housenumber = e.target.value)))
+              )(
+                    <.option(^.value := "", ^.selected := true)(""),
+                  for (o <- props.addr._2) yield {
+                    <.option(^.value := o)(o)
+                  }
+                ))
+            )
+          }
+          else <.div(),
           <.tr(
             <.td(
               <.button(^.onClick --> scope.modState(tags.modify(_ :+ ("", ""))))("+")
@@ -120,7 +169,23 @@ object TableComponent {
             <.td(),
             <.td(
               <.button(^.onClick --> {
-                val tagsToSend: Map[String, String] = (state.tags:+("id",state.id)).toMap
+                val l1 = if(state.city!="")
+                  {
+                    ("addr:city",state.city)
+                  }
+                else ("","")
+                val l2 = if(state.street!="")
+                {
+                  ("addr:street",state.street)
+                }
+                else ("","")
+                val l3 = if(state.housenumber!="")
+                {
+                  ("addr:housenumber",state.housenumber)
+                }
+                else ("","")
+
+                val tagsToSend: Map[String, String] = (("id",state.id) :: l1 :: l2 :: l3 :: state.tags).distinct.toMap
                 FromServer.save(tagsToSend,props.printAnswer)
               })("send")
             )
@@ -131,6 +196,9 @@ object TableComponent {
       Foundation.editorView(table, iframe)
     })
     .componentWillMount( cwm => {
+
+
+
       def setTags(s:TableState):TableState =
 
         s.copy(tags =
@@ -144,6 +212,7 @@ object TableComponent {
         cwm.modState(x => setTags(x).copy(website = y))
       }
       else cwm.modState(setTags)
+
     })
   .build
 

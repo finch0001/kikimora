@@ -22,9 +22,7 @@ object TrainClassifier extends App {
       }
     }
   }
-  //val newsgroupsDir = new File(args(0))
 
-  // We need this codec for reading in the 20 news groups files.
   implicit val isoCodec = scala.io.Codec("UTF8")
 
   // stopword set

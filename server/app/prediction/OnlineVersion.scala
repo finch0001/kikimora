@@ -1,8 +1,10 @@
 package prediction
 
 import io.plasmap.model.{OsmTag, OsmUser, OsmObject, OsmNode}
-import io.plasmap.parser.impl.OsmXmlParser
+import io.plasmap.parser.impl.{OsmGeoJSONParser, OsmXmlParser}
 import io.plasmap.serializer.XMLSerialiser
+import play.api.libs.json._
+import play.libs.XML
 import scala.collection.immutable
 import scala.collection.immutable.{Iterable, Seq}
 import scala.io.Source
@@ -61,11 +63,6 @@ object OnlineVersion extends App{
       """.stripMargin.filterNot(_ == '\n').mkString
   }
 
-  def closeChangeset(id: String) {
-    //Close: PUT /api/0.6/changeset/
-    //return nothing, code 200 or error code
-  }
-
   def getXMLNode(tags: Map[String, String], changeSet: String, userName: String, userId: String): (String, String) = {
     tags.get("id").map(
     y => {
@@ -84,28 +81,23 @@ object OnlineVersion extends App{
     ).getOrElse(("",""))
   }
 
-  /*def getUId (userInfo: String): String = {
-    //val source = Source.fromString(userInfo)
-    //val parser = XhtmlParser(source)
-    val parser = scala.xml.XML.loadString(userInfo)
-    val element = (parser \\ "user").map(r => {(r \ "@id").text})
-    println(element.toString())
-    element.mkString
+  def getAdresses(id:String): (List[String], List[String], List[String]) = {
 
-  }*/
-/*
-  def createNode(id: String, changesetID: String,  newTags: Map[String, String]): String = {
-    val node = "" +
-    "<osm>"+
-      "<node>"+
-        tagsSet(newTags) +
-      "</node>"+
-    "/osm"
+    val xmlParser = OsmXmlParser.apply(Source.fromURL(s"http://www.openstreetmap.org/api/0.6/node/$id"))
+    val coords = xmlParser.next().get.nodeOption.get.point //POINT IST NUR BEI NODE
+    val lon = coords.lon
+    val lat = coords.lat
+    val mapzenURL = s"""https://search.mapzen.com/v1/reverse?api_key=search-J1iJrKY&point.lat=${lat}&point.lon=${lon}"""
+    val parser = Json.parse(Source.fromURL(mapzenURL).mkString)
+    ((parser\\"street").map(_.as[String]).toList,(parser\\"housenumber").map(_.as[String]).toList,(parser\\"locality").map(_.as[String]).toList)
   }
 
-  def tagsSet(tags: Map[String, String]): String = {
-    val result = for ((k,v) <- tags) yield {"<tag k=\"" + k + "\" v=\"" + v + "\" />"}
-
+  def getUId (userInfo: String): String = {
+    val xml = XML.fromString(userInfo)
+    val user = xml.getElementsByTagName("user")
+    println(xml.getXmlVersion)
+    val id = user.item(0).getAttributes.getNamedItem("id").getTextContent
+    println(id)
+    id
   }
-*/
 }

@@ -1,30 +1,12 @@
-import prediction.Predict._
+import com.sun.deploy.xml.XMLParser
+import play.api.libs.json._
+import play.libs.XML
+
 import scala.io.Source
-import scalaz.\/
-val link = "http://www.heise.de"
-def getLinksFromRobots(link: String): List[String] = {
-  def trimAll(s: String, bad: String): String = {
-    @scala.annotation.tailrec def start(n: Int): String =
-      if (n == s.length) ""
-      else if (bad.indexOf(s.charAt(n)) < 0) end(n, s.length)
-      else start(1 + n)
 
-    @scala.annotation.tailrec def end(a: Int, n: Int): String =
-      if (n <= a) s.substring(a, n)
-      else if (bad.indexOf(s.charAt(n - 1)) < 0) s.substring(a, n)
-      else end(a, n - 1)
-
-    start(0)
-  }
-  def getDisallowed(line:String): String = {
-    if(line.startsWith("Disallow:")&&line.length>10) {
-      getBaseUrl(link).getOrElse("")+trimAll(line.substring(10)," \t\n\r")
-    }
-    else ""
-  }
-  val rob = link+"/robots.txt"
-  \/.fromTryCatchNonFatal{
-    (for (line <- Source.fromURL(rob).getLines()) yield getDisallowed(line)).toList
-  }.getOrElse(Nil).distinct
-}
-getLinksFromRobots(link)
+"aaaaaaa"
+val userInfo = "<osm version=\"0.6\" generator=\"OpenStreetMap server\">\n <user display_name=\"Max Muster\" account_created=\"2006-07-21T19:28:26Z\" id=\"1234\">\n   <contributor-terms agreed=\"true\" pd=\"true\"/>\n   <img href=\"http://www.openstreetmap.org/attachments/users/images/000/000/1234/original/someLongURLOrOther.JPG\"/>\n   <roles></roles>\n   <changesets count=\"4182\"/>\n   <traces count=\"513\"/>\n   <blocks>\n       <received count=\"0\" active=\"0\"/>\n   </blocks>\n   <home lat=\"49.4733718952806\" lon=\"8.89285988577866\" zoom=\"3\"/>\n   <description>The description of your profile</description>\n   <languages>\n     <lang>de-DE</lang>\n     <lang>de</lang>\n     <lang>en-US</lang>\n     <lang>en</lang>\n   </languages>\n   <messages>\n     <received count=\"1\" unread=\"0\"/>\n     <sent count=\"0\"/>\n   </messages>\n </user>\n</osm>"
+val xml = XML.fromString(userInfo)
+val user = xml.getElementsByTagName("user")
+xml.getXmlVersion
+println(user.item(0).getAttributes.getNamedItem("id"))

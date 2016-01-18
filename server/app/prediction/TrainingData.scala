@@ -9,7 +9,9 @@ import net.ruippeixotog.scalascraper.dsl.DSL.Extract._
 import net.ruippeixotog.scalascraper.dsl.DSL._
 import org.jsoup.nodes.{Document, Element}
 
+import scala.io.Source
 import scala.util.Try
+import scalaz.\/
 
 /**
  * Created by erna on 10/15/15.
@@ -49,16 +51,19 @@ object TrainingData extends App{
         //texte auslesen
         readText(doc)
       }
-        else ""}
-
-      val links: List[String] = getLinks(doc)
+      else ""}
+      val disallowList = getLinksFromRobots(getBaseUrl(link).getOrElse(""))
+      println(disallowList)
+      //val links: List[String] = getLinks(doc)
       val path: String = "train/"+splitCuisine(v)+"/"+id
+      val links: List[String] = getLinks(doc).distinct.filterNot(disallowList.toSet)
       val bwOpt: Option[BufferedWriter] = Try(new BufferedWriter(new FileWriter(new File(path)))).toOption
       bwOpt.fold(())( bw => {
         bw.write(text)
-        for(l <- links.distinct) {
+        bw.write(links.foldLeft(text)((texts, l) => texts + scrapeURL(l, link).mkString))
+        /*for(l <- links.distinct) {
           scrapeURL(l,link,bw)
-        }
+        }*/
         bw.newLine()
         bw.close()
       })
@@ -113,34 +118,48 @@ object TrainingData extends App{
     url.getProtocol + "://" + url.getHost
   }.toOption
 
+  def getLinksFromRobots(link: String): List[String] = {
+    def trimAll(s: String, bad: String): String = {
+      @scala.annotation.tailrec def start(n: Int): String =
+        if (n == s.length) ""
+        else if (bad.indexOf(s.charAt(n)) < 0) end(n, s.length)
+        else start(1 + n)
 
+      @scala.annotation.tailrec def end(a: Int, n: Int): String =
+        if (n <= a) s.substring(a, n)
+        else if (bad.indexOf(s.charAt(n - 1)) < 0) s.substring(a, n)
+        else end(a, n - 1)
 
-  def scrapeURL(link: String, baselink: String, bw: BufferedWriter) = {
-    def writeToFile(uri:String) = {
+      start(0)
+    }
+    def getDisallowed(line:String): String = {
+      if(line.startsWith("Disallow:")&&line.length>10) {
+        getBaseUrl(link).getOrElse("")+trimAll(line.substring(10)," \t\n\r")
+      }
+      else ""
+    }
+    val rob = link+"/robots.txt"
+    \/.fromTryCatchNonFatal{
+      (for (line <- Source.fromURL(rob).getLines()) yield getDisallowed(line)).toList
+    }.getOrElse(Nil).distinct
+  }
+
+  def scrapeURL(link: String, baselink: String): String = {
+    def readFromFile(uri: String): String = {
       val browser = new Browser
       val docOpt: Option[Document] = Try(browser.get(uri)).toOption
-      docOpt.fold(())( doc => {
-        val lang: String = doc >> attr("lang")("html")
-        if((lang.toLowerCase).contains("de")) {
-          //texte auslesen
-
-          bw.write(readText(doc))
-        }
-        else bw.write("")
-      })
+      docOpt.map(readText).getOrElse("")
     }
     link match {
       case _ if link.startsWith("http") || link.startsWith("www") =>
-        val l=url(link)
+        val l = url(link)
         val baseUrl = getBaseUrl(l)
-        baseUrl.foreach(burl =>
-          if(baselink == burl)
-            writeToFile(l)
-        )
+        if (baselink == baseUrl) readFromFile(l)
+        else ""
       case _ if link.startsWith("/") =>
-        writeToFile(baselink + link)
+        readFromFile(baselink + link)
       case _ =>
-        writeToFile(baselink + "/" + link)
+        readFromFile(baselink + "/" + link)
     }
   }
 }

@@ -10,7 +10,7 @@ import nak.util.ConfusionMatrix
 /**
  * Created by erna on 10/27/15.
  */
-object EvaluateClassifier {
+object EvaluateClassifier extends App {
 
   def run = {
     val evalDir = new JFile("test")
@@ -28,7 +28,6 @@ object EvaluateClassifier {
     bw.close()
     val (goldLabels, predictions, inputs) = comparisons.unzip3
     println(ConfusionMatrix(goldLabels, predictions, inputs))
-
-
   }
+  run
 }

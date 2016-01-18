@@ -14,7 +14,7 @@ import scala.util.{Failure, Success}
 import org.scalajs.dom
 
 /**
-  * Created by mark on 10.11.15.
+  * Created by erna on 10.11.15.
   */
 object Foundation {
   def basic(children:ReactTag*) = {

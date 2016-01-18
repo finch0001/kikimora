@@ -36,7 +36,7 @@ object OSM extends Controller {
         case Left(e) => throw e
       }
     }.getOrElse{
-        val token = Osm.retrieveRequestToken("http://kikimora.plasmap.io/")
+        val token = Osm.retrieveRequestToken("localhost/")
         token match {
           case Right(t) => {
             // We received the unauthorized tokens in the OAuth object - store it before we proceed

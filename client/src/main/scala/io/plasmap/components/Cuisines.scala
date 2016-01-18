@@ -1,7 +1,7 @@
 package io.plasmap.components
 
 /**
-  * Created by mark on 10.11.15.
+  * Created by erna on 10.11.15.
   */
 object Cuisines {
   val cuisines = List(

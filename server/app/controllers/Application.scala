@@ -12,9 +12,7 @@ import prediction.{OnlineVersion, Predict, EvaluateClassifier}
 import scala.concurrent.{Await, Future}
 import upickle.default._
 
-/**
- * Created by mark on 04.08.15.
- */
+
 object Application extends Controller {
 
   def index() = Action.async {
@@ -31,8 +29,9 @@ object Application extends Controller {
         (text:String) => {
           val id = upickle.default.read[String](text)
           val tags: Map[String, String] = OnlineVersion.getXML(id).toMap
+          val addr = OnlineVersion.getAdresses(id)
           println(id)
-          Ok(write((tags,id)))
+          Ok(write((tags,id, addr)))
         }).getOrElse(
           BadRequest("Bad Request")
         )
@@ -60,7 +59,7 @@ object Application extends Controller {
           WS.url("http://www.openstreetmap.org/api/0.6/user/details")
           .withAuth(username, password, WSAuthScheme.BASIC)
           .get
-          .map(result => Ok(write(result.body)).withSession("username" -> username, "password"-> password, "userid" -> /*OnlineVersion.getUId(result.body)*/"3300201"))
+          .map(result => Ok(write(result.body)).withSession("username" -> username, "password"-> password, "userid" -> OnlineVersion.getUId(result.body)))
         }).getOrElse(
           Future.successful(Redirect(routes.Application.login()))
         )

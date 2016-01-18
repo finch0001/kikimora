@@ -14,11 +14,11 @@ import scala.util.{Failure, Success}
 import org.scalajs.dom
 
 /**
-  * Created by mark on 10.11.15.
+  * Created by erna on 10.11.15.
   */
 object FormComponent {
   case class FormState(id:String, list: List[(String,String)])
-  case class FormProps(update:((Map[String,String],String)) => Callback)
+  case class FormProps(update:((Map[String,String],String,(List[String],List[String],List[String]))) => Callback)
 
   val component = ReactComponentB[FormProps]("Form Component")
     .initialState(FormState("3891486472",Nil))

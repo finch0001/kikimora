@@ -11,7 +11,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 /**
-  * Created by mark on 10.11.15.
+  * Created by erna on 10.11.15.
   */
 object FromServer {
 
@@ -23,8 +23,8 @@ object FromServer {
     (CallbackTo future fut).void
   }
 
-  def osmData(id:String, callback: ((Map[String, String],String)) => Callback) = {
-    post(write[String], read[(Map[String, String],String)])(
+  def osmData(id:String, callback: ((Map[String, String],String,(List[String],List[String],List[String]))) => Callback) = {
+    post(write[String], read[(Map[String, String],String,(List[String],List[String],List[String]))])(
       "/getosmdata", id, callback
     )
   }
